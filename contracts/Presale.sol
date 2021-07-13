@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "./interfaces/IPAYR.sol";
+import "./interfaces/IKatanainu.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -14,8 +14,8 @@ contract Presale is Ownable, ReentrancyGuard {
 	uint256 constant maxGoal = 10000000 * (10**18);
 	/* how much has been raised by crowdale (in ETH) */
 	uint256 public amountRaised;
-	/* how much has been raised by crowdale (in PAYR) */
-	uint256 public amountRaisedPAYR;
+	/* how much has been raised by crowdale (in Katanainu) */
+	uint256 public amountRaisedKatanainu;
 
 	/* the start & end date of the crowdsale */
 	uint256 public start;
@@ -26,11 +26,11 @@ contract Presale is Ownable, ReentrancyGuard {
 	uint256 constant price = 100000;
 
 	/* the address of the token contract */
-	IPAYR private tokenReward;
+	IKatanainu private tokenReward;
 	/* the balances (in ETH) of all investors */
 	mapping(address => uint256) public balanceOf;
-	/* the balances (in PAYR) of all investors */
-	mapping(address => uint256) public balanceOfPAYR;
+	/* the balances (in Katanainu) of all investors */
+	mapping(address => uint256) public balanceOfKatanainu;
 	/* indicates if the crowdsale has been closed already */
 	bool public presaleClosed = false;
 	/* notifying transfers and the success of the crowdsale*/
@@ -38,7 +38,7 @@ contract Presale is Ownable, ReentrancyGuard {
 	event FundTransfer(address backer, uint256 amount, bool isContribution, uint256 amountRaised);
 
     /*  initialization, set the token address */
-    constructor(IPAYR _token, uint256 _start, uint256 _dead, uint256 _end) {
+    constructor(IKatanainu _token, uint256 _start, uint256 _dead, uint256 _end) {
         tokenReward = _token;
 		start = _start;
 		deadline = _dead;
@@ -56,8 +56,8 @@ contract Presale is Ownable, ReentrancyGuard {
 		return balanceOf[addr];
 	}
 
-	function checkPAYRFunds(address addr) external view returns (uint256) {
-		return balanceOfPAYR[addr];
+	function checkKatanainuFunds(address addr) external view returns (uint256) {
+		return balanceOfKatanainu[addr];
 	}
 
 	function getETHBalance() external view returns (uint256) {
@@ -79,10 +79,10 @@ contract Presale is Ownable, ReentrancyGuard {
 
 		amountRaised = amountRaised.add(amount);
 
-		balanceOfPAYR[msg.sender] = balanceOfPAYR[msg.sender].add(amount.mul(price));
-		amountRaisedPAYR = amountRaisedPAYR.add(amount.mul(price));
+		balanceOfKatanainu[msg.sender] = balanceOfKatanainu[msg.sender].add(amount.mul(price));
+		amountRaisedKatanainu = amountRaisedKatanainu.add(amount.mul(price));
 
-		if (amountRaisedPAYR >= maxGoal) {
+		if (amountRaisedKatanainu >= maxGoal) {
 			presaleClosed = true;
 			emit GoalReached(msg.sender, amountRaised);
 		}
@@ -95,12 +95,12 @@ contract Presale is Ownable, ReentrancyGuard {
         _;
     }
 
-	function getPAYR() external afterClosed nonReentrant {
-		require(balanceOfPAYR[msg.sender] > 0, "Zero ETH contributed.");
-		uint256 amount = balanceOfPAYR[msg.sender];
+	function getKatanainu() external afterClosed nonReentrant {
+		require(balanceOfKatanainu[msg.sender] > 0, "Zero ETH contributed.");
+		uint256 amount = balanceOfKatanainu[msg.sender];
 		uint256 balance = tokenReward.balanceOf(address(this));
 		require(balance >= amount, "Contract has less fund.");
-		balanceOfPAYR[msg.sender] = 0;
+		balanceOfKatanainu[msg.sender] = 0;
 		tokenReward.transfer(msg.sender, amount);
 	}
 
@@ -111,7 +111,7 @@ contract Presale is Ownable, ReentrancyGuard {
 		payableOwner.transfer(balance);
 	}
 
-	function withdrawPAYR() external onlyOwner afterClosed{
+	function withdrawKatanainu() external onlyOwner afterClosed{
 		uint256 balance = tokenReward.balanceOf(address(this));
 		require(balance > 0, "Balance is zero.");
 		tokenReward.transfer(owner(), balance);

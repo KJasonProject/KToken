@@ -14,7 +14,7 @@ contract Katanainu is Ownable, IKatanainu {
     uint256 private _maxSupply = 200000000 * (10 ** 18);
 
     string private _name="KatanaInu";
-    string private _symbol="";
+    string private _symbol="KINU";
 
     /**
      * @dev Sets the values for {name} and {symbol}.
