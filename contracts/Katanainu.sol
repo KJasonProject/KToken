@@ -11,7 +11,7 @@ contract Katanainu is Ownable, IKatanainu {
     mapping (address => mapping (address => uint256)) private _allowances;
 
     uint256 private _totalSupply;
-    uint256 private _maxSupply = 200000000 * (10 ** 18);
+    uint256 private _maxSupply = 1000000000000000 * (10 ** 18);
 
     string private _name="KatanaInu";
     string private _symbol="KINU";
